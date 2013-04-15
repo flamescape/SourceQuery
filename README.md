@@ -5,8 +5,10 @@ A Source Server Query protocol implementation for node.js
 
 Protocol specification can be found here: https://developer.valvesoftware.com/wiki/Server_queries
 
-Example Usage
-=============
+Usage
+-----
+
+    npm install sourcequery
 
 ```js
 var SourceQuery = require('sourcequery');
