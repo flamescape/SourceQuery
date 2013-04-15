@@ -1,0 +1,20 @@
+{
+    "name": "sourcequery",
+    "version": "0.0.1",
+    "description": "A Source Server Query protocol implementation for node.js",
+    "keywords": ["srcds","source","query"],
+    "homepage": "https://github.com/flamescape/SourceQuery/",
+    "bugs": {"url":"https://github.com/flamescape/SourceQuery/issues"},
+    "author": {
+        "name": "Gareth Hughes",
+        "url": "http://flamescape.com"
+    },
+    "main": "sourcequery",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/flamescape/SourceQuery.git"
+    },
+    "dependencies": {
+        "bufferpack": "0.0.6"
+    }
+}
