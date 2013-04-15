@@ -2,10 +2,11 @@ SourceQuery
 ===========
 
 A Source Server Query protocol implementation for node.js
+
 Protocol specification can be found here: https://developer.valvesoftware.com/wiki/Server_queries
 
 Example Usage
--------------
+=============
 
 ```js
 var SourceQuery = require('sourcequery');
