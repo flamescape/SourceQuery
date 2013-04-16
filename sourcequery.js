@@ -77,6 +77,16 @@ var SourceQuery = function(timeout){
     timeout = timeout || 1000;
 
     var sq = this;
+	
+	var openQueries = 0;
+	var closingSocketCb;
+	var queryEnded = function(){
+		openQueries--;
+		if (!openQueries && !!closingSocketCb) {
+			sq.client.close();
+			closingSocketCb();
+		}
+	};
     
     var ids = {
         A2S_INFO: 'T',
@@ -93,11 +103,14 @@ var SourceQuery = function(timeout){
     };
     
     var send = function(buffer, responseCode, cb) {
+		cb = cb || function(){};
+		openQueries++;
         sq.client.send(buffer, 0, buffer.length, sq.port, sq.address, function(err, bytes){
             var giveUpTimer;
         
             if (err) {
                 cb(err, null);
+				queryEnded();
                 return;
             }
             
@@ -111,11 +124,13 @@ var SourceQuery = function(timeout){
                 sq.squnpacker.removeListener('message', relayResponse);
                 clearTimeout(giveUpTimer);
                 cb(null, buffer.slice(1));
+				queryEnded();
             };
             
             giveUpTimer = setTimeout(function(){
                 sq.squnpacker.removeListener('message', relayResponse);
                 cb('timeout', null);
+				queryEnded();
             }, timeout);
             
             sq.squnpacker.on('message', relayResponse);
@@ -139,6 +154,7 @@ var SourceQuery = function(timeout){
     };
     
     sq.getChallengeKey = function(reqType, cb) {
+		cb = cb || function(){};
         send(bp.pack('<isi', [-1, reqType, -1]), ids.S2A_SERVERQUERY_GETCHALLENGE, function(err, buffer){
             if (err) {
                 cb(err, buffer);
@@ -150,6 +166,7 @@ var SourceQuery = function(timeout){
     };
     
     sq.getInfo = function(cb) {
+		cb = cb || function(){};
         send(bp.pack('<isS', [-1, ids.A2S_INFO, 'Source Engine Query']), ids.S2A_INFO, function(err, buffer){
             if (err) {
                 cb(err, buffer);
@@ -219,6 +236,7 @@ var SourceQuery = function(timeout){
     };
     
     sq.getPlayers = function(cb) {
+		cb = cb || function(){};
         sq.getChallengeKey(ids.A2S_PLAYER, function(err, key){
             if (err) {
                 cb(err, key);
@@ -248,6 +266,7 @@ var SourceQuery = function(timeout){
     };
     
     sq.getRules = function(cb) {
+		cb = cb || function(){};
         sq.getChallengeKey(ids.A2S_RULES, function(err, key){
             if (err) {
                 cb(err, key);
@@ -273,8 +292,14 @@ var SourceQuery = function(timeout){
         });
     };
     
-    sq.close = function() {
-        sq.client.close();
+    sq.close = function(cb) {
+		cb = cb || function(){};
+		if (openQueries > 0) {
+			closingSocketCb = cb;
+		} else {
+			sq.client.close();
+			cb();
+		}
     };
 };
 

@@ -32,7 +32,10 @@ sq.getRules(function(err, rules){
     console.log('Server Rules:', rules);
 });
 
-setTimeout(sq.close, 2000); // close the socket after a couple of seconds
+sq.close(function(){
+	// socket closes when all pending queries have returned or timed out
+	console.log('Socket closed.');
+});
 ```
 
 Licence
